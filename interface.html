@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teste da API de Tarefas</title>
+  <style>
+    :root{
+      --bg:#f4f9f8;
+      --surface:#ffffff;
+      --text:#0a1616;
+      --muted:#5a6b68;
+      --accent:#21e0b6;
+      --accent-2:#13c09a;
+      --line:#e2efec;
+      --ok:#22c55e;
+      --err:#ef4444;
+    }
+    *{ box-sizing:border-box }
+    body{
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container{
+      background: var(--surface);
+      padding: 22px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(0,0,0,.05);
+    }
+    h1{ margin: 0 0 6px }
+    h1 .mark{
+      background: linear-gradient(180deg, transparent 62%, rgba(33,224,182,.35) 0);
+      border-radius: 6px;
+      padding: 0 .15rem;
+    }
+    h3{ margin: 18px 0 8px }
+    .btn{
+      background: var(--accent);
+      color: #053c34;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 6px 6px 6px 0;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(33,224,182,.25);
+      transition: transform .06s ease, background .2s ease;
+    }
+    .btn:hover{ background: var(--accent-2); transform: translateY(-1px) }
+    .resultado{
+      background: #061f1f;
+      color: #d9fff7;
+      border: 1px solid #103636;
+      border-radius: 10px;
+      padding: 14px;
+      margin: 12px 0;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .resultado.success{ box-shadow: inset 0 0 0 2px rgba(34,197,94,.45) }
+    .resultado.error{   box-shadow: inset 0 0 0 2px rgba(239,68,68,.45) }
+    input, textarea, select{
+      width: 100%;
+      padding: 10px 12px;
+      margin: 6px 0;
+      border: 1px solid #dde7e4;
+      border-radius: 10px;
+      outline: none;
+      background: #fbfefe;
+      transition: box-shadow .15s ease, border-color .15s ease;
+      font-size: 0.96rem;
+      color: var(--text);
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: var(--accent-2);
+      box-shadow: 0 0 0 4px rgba(33,224,182,.35);
+    }
+    .form-group{ margin: 16px 0 }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+    .hint{ color: var(--muted); font-size: .9rem; }
+    footer{
+      margin-top: 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    footer strong{ color: var(--text) }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="mark">Teste da API</span> de Tarefas</h1>
+
+    <div class="form-group">
+      <h3>Testes rápidos</h3>
+      <button class="btn" onclick="testarConexao()">Testar conexão</button>
+      <button class="btn" onclick="verEstatisticas()">Ver estatísticas</button>
+    </div>
+
+    <div class="form-group">
+      <h3>Listar tarefas</h3>
+      <div class="row">
+        <select id="f_status">
+          <option value="">status (todos)</option>
+          <option value="pendente">pendente</option>
+          <option value="concluida">concluida</option>
+        </select>
+        <select id="f_prioridade">
+          <option value="">prioridade (todas)</option>
+          <option value="baixa">baixa</option>
+          <option value="media">media</option>
+          <option value="alta">alta</option>
+        </select>
+        <input type="number" id="f_page" placeholder="page" value="1" style="max-width:120px"/>
+        <input type="number" id="f_limit" placeholder="limit" value="10" style="max-width:120px"/>
+        <button class="btn" onclick="listarComFiltros()">Listar</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <h3>Criar nova tarefa</h3>
+      <input type="text" id="titulo" placeholder="Título da tarefa" />
+      <textarea id="descricao" placeholder="Descrição (opcional)" rows="3"></textarea>
+      <select id="prioridade">
+        <option value="baixa">baixa</option>
+        <option value="media" selected>media</option>
+        <option value="alta">alta</option>
+      </select>
+      <br/>
+      <button class="btn" onclick="criarTarefa()">Criar tarefa</button>
+    </div>
+
+    <div class="form-group">
+      <h3>Buscar tarefa</h3>
+      <div class="row">
+        <input type="number" id="tarefaId" placeholder="ID da tarefa" style="max-width:200px"/>
+        <button class="btn" onclick="buscarTarefa()">Buscar</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <h3>Atualizar tarefa</h3>
+      <div class="row">
+        <input type="number" id="upd_id" placeholder="ID" style="max-width:120px"/>
+        <input type="text" id="upd_titulo" placeholder="Título"/>
+      </div>
+      <div class="row">
+        <textarea id="upd_descricao" rows="2" placeholder="Descrição"></textarea>
+      </div>
+      <div class="row">
+        <select id="upd_prioridade" style="max-width:200px">
+          <option value="baixa">baixa</option>
+          <option value="media" selected>media</option>
+          <option value="alta">alta</option>
+        </select>
+        <select id="upd_status" style="max-width:200px">
+          <option value="pendente" selected>pendente</option>
+          <option value="concluida">concluida</option>
+        </select>
+        <button class="btn" onclick="atualizarTarefa()">Atualizar</button>
+      </div>
+      <div class="hint">titulo é obrigatório no PUT</div>
+    </div>
+
+    <div class="form-group">
+      <h3>Alterar status</h3>
+      <div class="row">
+        <input type="number" id="st_id" placeholder="ID" style="max-width:120px"/>
+        <select id="st_status" style="max-width:200px">
+          <option value="pendente">pendente</option>
+          <option value="concluida">concluida</option>
+        </select>
+        <button class="btn" onclick="alterarStatus()">Aplicar</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <h3>Deletar tarefa</h3>
+      <div class="row">
+        <input type="number" id="del_id" placeholder="ID" style="max-width:120px"/>
+        <button class="btn" onclick="deletarTarefa()">Deletar</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <h3>Analisar com IA</h3>
+      <div class="row">
+        <input type="number" id="ia_id" placeholder="ID da tarefa" style="max-width:120px"/>
+        <button class="btn" onclick="analisarTarefa()">Analisar</button>
+      </div>
+      <div class="hint">Usa OpenAI pra estimar tempo e complexidade</div>
+    </div>
+
+    <div id="resultado" class="resultado">Pronto para testar a API.</div>
+
+    <footer>
+      Desenvolvido por: <strong>Luis Gabriel</strong> - v1.2 (ainda precisa melhorar algumas coisas...)
+    </footer>
+  </div>
+
+  
+
+  <script>
+    const API_URL = 'http://localhost:5000';
+
+    function mostrarResultado(data, sucesso = true){
+      const div = document.getElementById('resultado');
+      div.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+      div.className = `resultado ${sucesso ? 'success' : 'error'}`;
+    }
+
+    async function getJSON(url, options){
+      const r = await fetch(url, options);
+      const data = await r.json().catch(()=>({}));
+      return { ok: r.ok, data };
+    }
+
+    async function testarConexao(){
+      try{
+        const {ok, data} = await getJSON(`${API_URL}/`);
+        mostrarResultado({ status: ok ? 'conectado' : 'falha', resposta: data }, ok);
+      }catch(err){
+        mostrarResultado({erro:'API não respondeu', det:String(err)}, false);
+      }
+    }
+
+    async function verEstatisticas(){
+      const {ok, data} = await getJSON(`${API_URL}/api/estatisticas`);
+      mostrarResultado(data, ok);
+    }
+
+    async function listarComFiltros(){
+      const s = document.getElementById('f_status').value;
+      const p = document.getElementById('f_prioridade').value;
+      const page = document.getElementById('f_page').value || 1;
+      const limit= document.getElementById('f_limit').value || 10;
+      const qs = new URLSearchParams();
+      if(s) qs.set('status', s);
+      if(p) qs.set('prioridade', p);
+      if(page) qs.set('page', page);
+      if(limit) qs.set('limit', limit);
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas?${qs.toString()}`);
+      mostrarResultado(data, ok);
+    }
+
+    async function criarTarefa(){
+      const titulo = document.getElementById('titulo').value;
+      const descricao = document.getElementById('descricao').value;
+      const prioridade = document.getElementById('prioridade').value;
+      if(!titulo){ mostrarResultado({erro:'Título é obrigatório'}, false); return; }
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ titulo, descricao, prioridade })
+      });
+      mostrarResultado(data, ok);
+      if(ok){ document.getElementById('titulo').value=''; document.getElementById('descricao').value='' }
+    }
+
+    async function buscarTarefa(){
+      const id = document.getElementById('tarefaId').value;
+      if(!id){ mostrarResultado({erro:'Informe o ID'}, false); return; }
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas/${id}`);
+      mostrarResultado(data, ok);
+    }
+
+    async function atualizarTarefa(){
+      const id = document.getElementById('upd_id').value;
+      const titulo = document.getElementById('upd_titulo').value;
+      const descricao = document.getElementById('upd_descricao').value;
+      const prioridade = document.getElementById('upd_prioridade').value;
+      const status = document.getElementById('upd_status').value;
+      if(!id){ mostrarResultado({erro:'Informe o ID'}, false); return; }
+      if(!titulo){ mostrarResultado({erro:'Título é obrigatório no PUT'}, false); return; }
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas/${id}`, {
+        method:'PUT',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ titulo, descricao, prioridade, status })
+      });
+      mostrarResultado(data, ok);
+    }
+
+    async function alterarStatus(){
+      const id = document.getElementById('st_id').value;
+      const status = document.getElementById('st_status').value;
+      if(!id){ mostrarResultado({erro:'Informe o ID'}, false); return; }
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas/${id}/status`, {
+        method:'PATCH',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ status })
+      });
+      mostrarResultado(data, ok);
+    }
+
+    async function deletarTarefa(){
+      const id = document.getElementById('del_id').value;
+      if(!id){ mostrarResultado({erro:'Informe o ID'}, false); return; }
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas/${id}`, { method:'DELETE' });
+      mostrarResultado(data, ok);
+    }
+
+    async function analisarTarefa(){
+      const id = document.getElementById('ia_id').value || document.getElementById('tarefaId').value;
+      if(!id){ mostrarResultado({erro:'Informe o ID da tarefa'}, false); return; }
+      
+      // mostra loading enquanto processa
+      mostrarResultado('Analisando tarefa com IA... pode demorar uns segundos');
+      
+      const {ok, data} = await getJSON(`${API_URL}/api/tarefas/${id}/analisar`, { method:'POST' });
+      mostrarResultado(data, ok);
+    }
+  </script>
+</body>
+</html>
