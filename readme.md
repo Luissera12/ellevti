@@ -11,6 +11,7 @@ Outras dependências: Flask-CORS, python-dotenv
 
 Funcionalidades
 
+<<<<<<< HEAD
 CRUD completo de tarefas (criar, listar, buscar, atualizar, excluir)
 Filtros por status (pendente/concluída) e prioridade (baixa/média/alta)
 Paginação na listagem de tarefas
@@ -64,9 +65,18 @@ Estrutura da Tarefa:
   "data_criacao": "2024-01-01T10:00:00",
   "data_atualizacao": "2024-01-01T10:00:00"
 }
+=======
+1. Clonar o repositório
+2. Criar ambiente virtual: python -m venv venv
+3. Ativar ambiente: venv\Scripts\activate (Windows) ou source venv/bin/activate (Linux/Mac)
+4. Instalar dependências: pip install -r requirements.txt
+5. Criar arquivo .env com: OPENAI_API_KEY=()
+6. Executar: python run.py
+>>>>>>> b0f2ea50a8d8a6f74c2def366b246f5b77f77e9a
 
 Endpoints:
 
+<<<<<<< HEAD
 GET /api/tarefas
 Lista todas as tarefas com paginação e filtros
 Parâmetros opcionais:
@@ -140,3 +150,6 @@ app/
 run.py                  # Ponto de entrada da aplicação
 interface.html          # Interface web para testes
 requirements.txt        # Dependências Python
+=======
+Interface de teste: http://localhost:5000/interface
+>>>>>>> b0f2ea50a8d8a6f74c2def366b246f5b77f77e9a
