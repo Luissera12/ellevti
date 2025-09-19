@@ -18,7 +18,7 @@ Instalação:
 2. Criar ambiente virtual: python -m venv venv
 3. Ativar ambiente: venv\Scripts\activate (Windows) ou source venv/bin/activate (Linux/Mac)
 4. Instalar dependências: pip install -r requirements.txt
-5. Criar arquivo .env com: OPENAI_API_KEY=sua_chave_aqui
+5. Criar arquivo .env com: OPENAI_API_KEY=()
 6. Executar: python run.py
 
 Endpoints:
