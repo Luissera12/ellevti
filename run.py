@@ -36,7 +36,7 @@ if __name__ == "__main__":
                         tarefa
                     )
                 conexao.commit()
-                print("✅ Dados de exemplo inseridos com sucesso!")
+                print(" Dados de exemplo inseridos com sucesso!")
         except Exception as e:
             print(f"❌ Erro ao inserir dados: {e}")
         finally:
@@ -46,9 +46,9 @@ if __name__ == "__main__":
     porta = app.config["PORT"]
     modo_debug = app.config["DEBUG"]
     
-    print(f"🚀 Iniciando servidor...")
-    print(f"📍 API: http://localhost:{porta}")
-    print(f"🖥️  Interface: http://localhost:{porta}/interface")
-    print(f"🔧 Debug mode: {modo_debug}")
+    print(f" Iniciando servidor...")
+    print(f" API: http://localhost:{porta}")
+    print(f" Interface: http://localhost:{porta}/interface")
+    print(f" Debug mode: {modo_debug}")
     
     app.run(host="0.0.0.0", port=porta, debug=modo_debug)
